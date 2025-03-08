@@ -93,12 +93,13 @@ function initializeChart() {
                     zoom: {
                         wheel: {
                             enabled: true,
-                            modifierKey: null
+                            modifierKey: null,
+                            mode: 'x'
                         },
                         pinch: {
-                            enabled: true
+                            enabled: true,
+                            mode: 'x'
                         },
-                        mode: 'xy',
                         drag: {
                             enabled: true,
                             backgroundColor: 'rgba(127,127,127,0.3)'
@@ -112,7 +113,11 @@ function initializeChart() {
                         threshold: 10
                     },
                     limits: {
-                        y: {min: 0}
+                        y: {
+                            min: 50,
+                            max: 120,
+                            minRange: 20
+                        }
                     }
                 },
                 legend: {
