@@ -18,7 +18,7 @@ A web-based tool for visualizing Sound Pressure Level (SPL) measurements from RE
 
 ## Usage
 
-1. Visit the hosted application at [your-github-username.github.io/spl-viewer]
+1. Visit the hosted application at [https://jamin9909.github.io/spl-viewer/](https://jamin9909.github.io/spl-viewer/)
 2. Click "Choose File" to select your REW exported .txt file
 3. Interact with the graph:
    - Scroll/pinch to zoom
