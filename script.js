@@ -151,16 +151,7 @@ function initializeChart() {
             },
             scales: {
                 x: {
-                    type: 'time',
-                    time: {
-                        parser: 'HH:mm:ss.SSS',
-                        unit: 'second',
-                        displayFormats: {
-                            second: 'H:mm:ss',
-                            minute: 'H:mm',
-                            hour: 'H'
-                        }
-                    },
+                    type: 'category',
                     title: {
                         display: true,
                         text: 'Time of Day',
@@ -175,9 +166,8 @@ function initializeChart() {
                     ticks: {
                         color: '#e0e0e0',
                         maxRotation: 0,
-                        callback: function(value, index, values) {
-                            const time = this.getLabelForValue(value);
-                            return time ? formatTime(time) : '';
+                        callback: function(value) {
+                            return formatTime(value);
                         }
                     }
                 },
