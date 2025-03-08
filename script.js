@@ -189,8 +189,8 @@ function initializeChart() {
                         text: 'SPL (dB)',
                         color: '#e0e0e0'
                     },
-                    min: 0,
-                    suggestedMax: 120,
+                    min: 50,
+                    max: 120,
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)',
                         drawTicks: true,
@@ -198,7 +198,7 @@ function initializeChart() {
                         display: true
                     },
                     ticks: {
-                        stepSize: 5,
+                        stepSize: 10,
                         color: '#e0e0e0'
                     }
                 }
