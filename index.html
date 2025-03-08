@@ -120,8 +120,13 @@
         }
         .time-input-container {
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-top: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
         }
         #timeInput {
             flex: 1;
@@ -132,7 +137,7 @@
             color: #e0e0e0;
             font-size: 1em;
         }
-        #jumpButton {
+        #jumpButton, #resetZoomButton {
             background-color: #4a4a4a;
             border: none;
             border-radius: 4px;
@@ -140,11 +145,37 @@
             color: #e0e0e0;
             cursor: pointer;
             transition: background-color 0.2s;
+            flex: 1;
         }
-        #jumpButton:hover {
+        #jumpButton:hover, #resetZoomButton:hover {
             background-color: #5a5a5a;
         }
-        #jumpButton:active {
+        #jumpButton:active, #resetZoomButton:active {
+            background-color: #3a3a3a;
+        }
+        .point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .point-header h3 {
+            margin: 0;
+        }
+        #resetZoomButton {
+            background-color: #4a4a4a;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+        }
+        #resetZoomButton:hover {
+            background-color: #5a5a5a;
+        }
+        #resetZoomButton:active {
             background-color: #3a3a3a;
         }
     </style>
@@ -193,11 +224,16 @@
                     <h3>Jump to Time</h3>
                     <div class="time-input-container">
                         <input type="text" id="timeInput" placeholder="HH:mm:ss" pattern="[0-9]{1,2}:[0-9]{2}:[0-9]{2}" title="Enter time in format: H:mm:ss or HH:mm:ss">
-                        <button id="jumpButton">Jump</button>
+                        <div class="button-group">
+                            <button id="jumpButton">Jump</button>
+                        </div>
                     </div>
                 </div>
                 <div id="pointData">
-                    <h3>Point Details</h3>
+                    <div class="point-header">
+                        <h3>Point Details</h3>
+                        <button id="resetZoomButton">Clear</button>
+                    </div>
                     <div class="time-value"></div>
                     <div class="data-point">
                         <div class="data-label">Current SPL (LCS)</div>

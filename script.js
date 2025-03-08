@@ -172,7 +172,6 @@ function initializeChart() {
                     },
                     adapters: {
                         date: {
-                            // Override the date adapter to only use time
                             format: function(time, format) {
                                 return formatTime(time);
                             },
@@ -376,29 +375,62 @@ function jumpToTime(timeStr) {
     // Update point data display
     updatePointData(time, current, min, max, peak, eq);
 
-    // Calculate the visible range to center the point
-    const chart = splChart;
-    const meta = chart.getDatasetMeta(0);
-    const xScale = chart.scales.x;
+    // Calculate time range for ±2 minutes
+    const [hours, minutes, seconds] = time.split('.')[0].split(':').map(Number);
+    const centerTime = hours * 3600 + minutes * 60 + seconds;
     
-    // Set the center point
-    const timeValue = xScale.parse(time);
-    const pixelPosition = xScale.getPixelForValue(timeValue);
+    // Find the time range in the data
+    const minTime = centerTime - 120; // 2 minutes before in seconds
+    const maxTime = centerTime + 120; // 2 minutes after in seconds
     
-    // Calculate the visible range (in pixels)
-    const chartWidth = chart.width;
-    const rangeStart = pixelPosition - chartWidth / 2;
-    const rangeEnd = pixelPosition + chartWidth / 2;
+    // Find the indices for the time range
+    const timeIndices = times.map((t) => {
+        const [h, m, s] = t.split('.')[0].split(':').map(Number);
+        return h * 3600 + m * 60 + s;
+    });
     
-    // Convert back to scale values
-    const minTime = xScale.getValueForPixel(rangeStart);
-    const maxTime = xScale.getValueForPixel(rangeEnd);
+    const minIndex = timeIndices.findIndex(t => t >= minTime);
+    const maxIndex = timeIndices.findIndex(t => t > maxTime);
     
-    // Set the range
-    xScale.options.min = minTime;
-    xScale.options.max = maxTime;
+    // Set the x-axis range to zoom in
+    const xScale = splChart.scales.x;
+    xScale.options.min = times[Math.max(0, minIndex)];
+    xScale.options.max = times[maxIndex !== -1 ? maxIndex : times.length - 1];
     
-    chart.update('none');
+    // Force a full update of the chart
+    splChart.update('active');
+}
+
+// Reset zoom to show all data
+function resetZoom() {
+    if (!splChart || !splChart.data || !splChart.data.labels || splChart.data.labels.length === 0) {
+        return;
+    }
+    
+    // Clear all zoom and pan settings
+    splChart.resetZoom();
+    
+    // Clear the min/max settings on the x-axis
+    const xScale = splChart.scales.x;
+    xScale.options.min = undefined;
+    xScale.options.max = undefined;
+    
+    // Hide the point details panel
+    const pointData = document.getElementById('pointData');
+    pointData.style.display = 'none';
+    
+    // Force a full update of the chart
+    splChart.update('active');
+}
+
+// Handle time jump input
+function handleTimeJump() {
+    const timeStr = timeInput.value.trim();
+    if (/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}$/.test(timeStr)) {
+        jumpToTime(timeStr);
+    } else {
+        alert("Please enter time in format: H:mm:ss or HH:mm:ss");
+    }
 }
 
 // Initialize empty chart on page load
@@ -408,24 +440,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add time jump event listeners
     const timeInput = document.getElementById('timeInput');
     const jumpButton = document.getElementById('jumpButton');
+    const resetZoomButton = document.getElementById('resetZoomButton');
     
-    jumpButton.addEventListener('click', function() {
-        const timeStr = timeInput.value.trim();
-        if (/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}$/.test(timeStr)) {
-            jumpToTime(timeStr);
-        } else {
-            alert("Please enter time in format: H:mm:ss or HH:mm:ss");
-        }
-    });
+    jumpButton.addEventListener('click', handleTimeJump);
     
-    timeInput.addEventListener('keypress', function(e) {
+    timeInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            const timeStr = timeInput.value.trim();
-            if (/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}$/.test(timeStr)) {
-                jumpToTime(timeStr);
-            } else {
-                alert("Please enter time in format: H:mm:ss or HH:mm:ss");
-            }
+            e.preventDefault(); // Prevent default form submission
+            handleTimeJump();
         }
     });
+    
+    resetZoomButton.addEventListener('click', resetZoom);
 });
