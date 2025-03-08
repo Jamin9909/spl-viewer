@@ -2,7 +2,12 @@ let splChart = null;
 
 // Format time without leading zeros
 function formatTime(timeStr) {
-    return timeStr.replace(/^0/, '').replace(/:0(?=\d)/g, ':');
+    // Remove milliseconds if present
+    timeStr = timeStr.split('.')[0];
+    // Remove leading zeros from hours, but keep them for minutes and seconds
+    return timeStr.replace(/^0/, '').replace(/(\d+):(\d+):(\d+)/, function(match, h, m, s) {
+        return `${parseInt(h)}:${m}:${s}`;
+    });
 }
 
 // Update point data display
@@ -153,7 +158,7 @@ function initializeChart() {
                         displayFormats: {
                             second: 'H:mm:ss',
                             minute: 'H:mm',
-                            hour: 'H:mm'
+                            hour: 'H'
                         }
                     },
                     title: {
