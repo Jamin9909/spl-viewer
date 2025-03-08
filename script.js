@@ -10,21 +10,6 @@ function formatTime(timeStr) {
     });
 }
 
-// Update point data display
-function updatePointData(time, current, min, max, peak, eq) {
-    const pointData = document.getElementById('pointData');
-    // Always ensure the panel is visible
-    pointData.style.display = 'block';
-    
-    // Update the values
-    pointData.querySelector('.time-value').textContent = formatTime(time);
-    pointData.querySelector('.current-spl').textContent = current.toFixed(1) + ' dB';
-    pointData.querySelector('.min-spl').textContent = min.toFixed(1) + ' dB';
-    pointData.querySelector('.max-spl').textContent = max.toFixed(1) + ' dB';
-    pointData.querySelector('.peak-spl').textContent = peak.toFixed(1) + ' dB';
-    pointData.querySelector('.eq-spl').textContent = eq.toFixed(1) + ' dB';
-}
-
 // Initialize the chart with empty data
 function initializeChart() {
     const ctx = document.getElementById('splChart').getContext('2d');
@@ -151,7 +136,16 @@ function initializeChart() {
             },
             scales: {
                 x: {
-                    type: 'category',
+                    type: 'time',
+                    time: {
+                        parser: 'HH:mm:ss.SSS',
+                        unit: 'second',
+                        displayFormats: {
+                            second: 'H:mm:ss',
+                            minute: 'H:mm',
+                            hour: 'H:mm'
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Time of Day',
@@ -166,8 +160,26 @@ function initializeChart() {
                     ticks: {
                         color: '#e0e0e0',
                         maxRotation: 0,
-                        callback: function(value) {
-                            return formatTime(value);
+                        callback: function(value, index, values) {
+                            const time = this.getLabelForValue(value);
+                            return time ? formatTime(time) : '';
+                        }
+                    },
+                    adapters: {
+                        date: {
+                            // Override the date adapter to only use time
+                            format: function(time, format) {
+                                return formatTime(time);
+                            },
+                            parse: function(value) {
+                                // Parse time string to a format Chart.js can use
+                                const [hours, minutes, seconds] = value.split(':');
+                                const date = new Date(2000, 0, 1); // Use a fixed date
+                                date.setHours(parseInt(hours));
+                                date.setMinutes(parseInt(minutes));
+                                date.setSeconds(parseFloat(seconds));
+                                return date;
+                            }
                         }
                     }
                 },
@@ -193,6 +205,21 @@ function initializeChart() {
             }
         }
     });
+}
+
+// Update point data display
+function updatePointData(time, current, min, max, peak, eq) {
+    const pointData = document.getElementById('pointData');
+    // Always ensure the panel is visible
+    pointData.style.display = 'block';
+    
+    // Update the values
+    pointData.querySelector('.time-value').textContent = formatTime(time);
+    pointData.querySelector('.current-spl').textContent = current.toFixed(1) + ' dB';
+    pointData.querySelector('.min-spl').textContent = min.toFixed(1) + ' dB';
+    pointData.querySelector('.max-spl').textContent = max.toFixed(1) + ' dB';
+    pointData.querySelector('.peak-spl').textContent = peak.toFixed(1) + ' dB';
+    pointData.querySelector('.eq-spl').textContent = eq.toFixed(1) + ' dB';
 }
 
 // Parse the REW txt file
