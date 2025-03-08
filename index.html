@@ -112,6 +112,41 @@
             margin: 0 0 15px 0;
             font-size: 1.2em;
         }
+        .control-section {
+            background-color: #383838;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .time-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #timeInput {
+            flex: 1;
+            background-color: #2d2d2d;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            padding: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        #jumpButton {
+            background-color: #4a4a4a;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #jumpButton:hover {
+            background-color: #5a5a5a;
+        }
+        #jumpButton:active {
+            background-color: #3a3a3a;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +189,13 @@
             </div>
 
             <div class="right-panel">
+                <div id="timeJump" class="control-section">
+                    <h3>Jump to Time</h3>
+                    <div class="time-input-container">
+                        <input type="text" id="timeInput" placeholder="HH:mm:ss" pattern="[0-9]{1,2}:[0-9]{2}:[0-9]{2}" title="Enter time in format: H:mm:ss or HH:mm:ss">
+                        <button id="jumpButton">Jump</button>
+                    </div>
+                </div>
                 <div id="pointData">
                     <h3>Point Details</h3>
                     <div class="time-value"></div>

@@ -331,5 +331,101 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
     reader.readAsText(file);
 });
 
+// Jump to specific time
+function jumpToTime(timeStr) {
+    if (!splChart || !splChart.data || !splChart.data.labels || splChart.data.labels.length === 0) {
+        alert("Please load a data file first.");
+        return;
+    }
+
+    // Format input time to match data format (add milliseconds if needed)
+    const formattedTime = timeStr.includes('.') ? timeStr : timeStr + '.000';
+
+    // Find the closest time in the data
+    const times = splChart.data.labels;
+    let closestIndex = 0;
+    let smallestDiff = Infinity;
+
+    times.forEach((time, index) => {
+        // Compare times as strings (HH:mm:ss format)
+        const timeA = time.split('.')[0];  // Remove milliseconds for comparison
+        const timeB = timeStr;
+        
+        const [hoursA, minutesA, secondsA] = timeA.split(':').map(Number);
+        const [hoursB, minutesB, secondsB] = timeB.split(':').map(Number);
+        
+        const totalSecondsA = hoursA * 3600 + minutesA * 60 + secondsA;
+        const totalSecondsB = hoursB * 3600 + minutesB * 60 + secondsB;
+        
+        const diff = Math.abs(totalSecondsA - totalSecondsB);
+        
+        if (diff < smallestDiff) {
+            smallestDiff = diff;
+            closestIndex = index;
+        }
+    });
+
+    // Get the values at the closest time
+    const time = times[closestIndex];
+    const current = splChart.data.datasets[0].data[closestIndex];
+    const min = splChart.data.datasets[1].data[closestIndex];
+    const max = splChart.data.datasets[2].data[closestIndex];
+    const peak = splChart.data.datasets[3].data[closestIndex];
+    const eq = splChart.data.datasets[4].data[closestIndex];
+
+    // Update point data display
+    updatePointData(time, current, min, max, peak, eq);
+
+    // Calculate the visible range to center the point
+    const chart = splChart;
+    const meta = chart.getDatasetMeta(0);
+    const xScale = chart.scales.x;
+    
+    // Set the center point
+    const timeValue = xScale.parse(time);
+    const pixelPosition = xScale.getPixelForValue(timeValue);
+    
+    // Calculate the visible range (in pixels)
+    const chartWidth = chart.width;
+    const rangeStart = pixelPosition - chartWidth / 2;
+    const rangeEnd = pixelPosition + chartWidth / 2;
+    
+    // Convert back to scale values
+    const minTime = xScale.getValueForPixel(rangeStart);
+    const maxTime = xScale.getValueForPixel(rangeEnd);
+    
+    // Set the range
+    xScale.options.min = minTime;
+    xScale.options.max = maxTime;
+    
+    chart.update('none');
+}
+
 // Initialize empty chart on page load
-document.addEventListener('DOMContentLoaded', initializeChart);
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChart();
+    
+    // Add time jump event listeners
+    const timeInput = document.getElementById('timeInput');
+    const jumpButton = document.getElementById('jumpButton');
+    
+    jumpButton.addEventListener('click', function() {
+        const timeStr = timeInput.value.trim();
+        if (/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}$/.test(timeStr)) {
+            jumpToTime(timeStr);
+        } else {
+            alert("Please enter time in format: H:mm:ss or HH:mm:ss");
+        }
+    });
+    
+    timeInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const timeStr = timeInput.value.trim();
+            if (/^[0-9]{1,2}:[0-9]{2}:[0-9]{2}$/.test(timeStr)) {
+                jumpToTime(timeStr);
+            } else {
+                alert("Please enter time in format: H:mm:ss or HH:mm:ss");
+            }
+        }
+    });
+});
